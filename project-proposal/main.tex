@@ -1,0 +1,332 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Give LaTeX more room to stretch/shrink lines before
+% resorting to an overfull box
+\setlength{\emergencystretch}{3em}
+
+% Variable: Lab Instructor
+\makeatletter \newcommand{\BvrSetLabInstructor}[1]{%
+  \gdef\Bvr@LabInstructor{#1}}
+% default
+\newcommand{\Bvr@LabInstructor}{Dr. Paramveer Sidhu}
+% public accessor
+\newcommand{\BvrLabInstructorValue}{\Bvr@LabInstructor}
+\makeatother
+
+% Add subtitle
+\usepackage{titling}
+% -- Set title bold
+\pretitle{\begin{center}\bfseries\fontsize{18bp}{18bp}\selectfont}
+\makeatletter
+\newcommand{\BvrSubtitle}[1]{%
+  \posttitle{%
+    \par\end{center}
+    \begin{center}\large#1\end{center}
+    \vskip 0.5em}%
+}
+\makeatother
+
+% -----------------------------------------------------
+
+\title{Driver Drowsiness Detection and Alert System}
+
+\BvrSetLabInstructor{Dr.Paramveer Sidhu}
+
+\BvrSubtitle{%
+  Project Proposal for UCS503  \\
+  Submitted to: \BvrLabInstructorValue \\ \bfseries
+  Thapar Institute of Engineering and Technology%
+}
+
+\author{
+   Arshita Gupta, 3C53
+  \thanks{Roll No: \texttt{1024030725}, 
+    Email: \texttt{agupta24\_be24\@thapar.edu}}
+  \and
+   Tarushi Goyal, 3C53%
+  \thanks{Roll No: \texttt{1024030730}, %
+    Email: \texttt{tgoyal2\_be24\@thapar.edu}}
+     \and
+   Chahana Goyal, 3C53%
+  \thanks{Roll No: \texttt{1024030746}, %
+    Email: \texttt{cgoyal\_be24\@thapar.edu}}
+}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+This project aims to improve road safety by reducing
+accidents caused by driver fatigue and micro-sleep
+episodes. While the underlying concern (fatigue-related
+crashes) is a broader public-health and transportation
+issue, the immediate engineering objective is to
+translate \emph{real-time drowsiness detection} into a
+measurable, deployable software solution running on
+commodity hardware (webcam/smartphone camera).
+
+\section{Objectives}
+
+The primary objective of this project is to develop a lightweight,
+real-time camera-based system for detecting driver drowsiness and
+providing timely alerts.
+
+The specific objectives are:
+\begin{itemize}[leftmargin=0.7cm]
+    \item To detect the driver's face and facial landmarks in real time
+    using a webcam or dashboard-mounted camera.
+    
+    \item To detect prolonged eye closure and yawning using Eye Aspect
+    Ratio (EAR) and Mouth Aspect Ratio (MAR).
+    
+    \item To reduce false alarms using temporal smoothing and
+    per-user calibration.
+    
+    \item To provide an audio/visual alert when sustained signs of
+    drowsiness are detected.
+    
+    \item To evaluate the system using alert latency, detection
+    accuracy, false-alarm rate, and real-time performance.
+\end{itemize}
+
+\section{Problem Statement}
+Drowsy driving is a significant contributor to road
+accidents, particularly on highways and during long or
+night-time drives. Common pain points include:
+\begin{itemize}[leftmargin=0.7cm]
+    \item \textbf{Late detection:} drivers and passengers often fail to notice early signs of fatigue (prolonged blinks, yawning, head nodding) until it is too late.
+    \item \textbf{Cost barrier:} existing dedicated drowsiness-detection hardware (e.g., specialized in-cabin sensors) is expensive and not standard in most vehicles, especially in tier-2/3 markets.
+    \item \textbf{False alarms:} naive systems using rigid thresholds trigger frequent false positives (e.g., due to glasses, lighting, or eye shape variation), reducing driver trust and adoption.
+    \item \textbf{Lack of accessible logging:} there is no easy way for fleet operators or individual users to review drowsiness incidents after a trip.
+\end{itemize}
+
+\textbf{Why this matters now (contextual relevance):}
+With cameras already available in smartphones and
+low-cost dashboard-mounted devices, a software-only or
+software-plus-commodity-camera solution can meaningfully
+reduce fatigue-related risk without expensive
+specialized hardware.
+
+\section{Proposed Solution}
+\subsection{Overview}
+Build a \textbf{camera-based} ``Drowsiness-to-Alert''
+system with the following components:
+\begin{itemize}[leftmargin=0.7cm]
+    \item \textbf{Capture module:} continuous video capture from a webcam or dashboard-mounted camera.
+    \item \textbf{Face and landmark detection:} locate the driver's face and extract eye/mouth landmarks per frame.
+    \item \textbf{Drowsiness scoring:} compute indicators such as Eye Aspect Ratio (EAR) and Mouth Aspect Ratio (MAR) to flag prolonged eye closure and yawning.
+    \item \textbf{Alert mechanism:} trigger an audio/visual alert when a temporally-smoothed drowsiness score crosses a threshold.
+    \item \textbf{Event logging dashboard:} record timestamped drowsiness events (without storing raw video) for later review.
+\end{itemize}
+
+\subsection{Core workflow}
+\begin{enumerate}[leftmargin=0.7cm]
+    \item Camera captures a frame; the system detects the driver's face and facial landmarks.
+    \item EAR and MAR are computed per frame; a rolling window smooths noisy per-frame values.
+    \item If eye closure or yawning persists beyond a calibrated duration, a drowsiness state is flagged.
+    \item An alert (sound/vibration/visual) is triggered, and the event is logged with a timestamp and severity level.
+\end{enumerate}
+
+\subsection{Operational constraints for an educational,
+  real-time setting}
+\begin{itemize}[leftmargin=0.7cm]
+    \item Keep the pipeline lightweight enough to run in real time (target $\geq$ 15 FPS) on low-to-mid range hardware (e.g., laptop webcam, Raspberry Pi, or a mid-range smartphone).
+    \item Avoid dependence on training novel deep-learning models from scratch; use pre-trained facial landmark detectors and well-established heuristics.
+    \item Design for deployability as a standalone desktop/mobile app with an optional lightweight backend for logging and fleet-level aggregation.
+\end{itemize}
+
+\section{Solution Approach}
+This is an engineering course project, so we focus on
+integrating mature computer-vision components into a
+reliable, real-time, measurable pipeline rather than
+researching new detection algorithms.
+
+\subsection{Drowsiness scoring}
+Detection will be heuristic-based, built on established,
+well-documented techniques:
+\begin{itemize}[leftmargin=0.7cm]
+    \item Use a pre-trained facial landmark model (e.g., dlib's 68-point model or MediaPipe Face Mesh) rather than training a new detector.
+    \item Compute EAR (eye aspect ratio) and MAR (mouth aspect ratio) using standard published formulas, with calibrated per-user thresholds.
+    \item Apply temporal smoothing (e.g., a sliding window / consecutive-frame count) to reduce false positives from single-frame noise, and surface borderline cases as ``low-confidence'' alerts rather than silently suppressing them.
+\end{itemize}
+
+\subsection{System architecture}
+A layered architecture with an edge-first design:
+\begin{itemize}[leftmargin=0.7cm]
+    \item \textbf{Edge/client layer:} camera capture, face/landmark detection, scoring, and alerting run locally to minimize latency and avoid transmitting raw video.
+    \item \textbf{Backend API (optional):} receives only lightweight event metadata (timestamp, severity, session ID) for logging and analytics; no raw frames are uploaded by default.
+    \item \textbf{Database:} stores users, sessions, drowsiness events, and calibration profiles.
+\end{itemize}
+
+\subsection{CI/CD and fast delivery enabler}
+CI/CD will be used to:
+\begin{itemize}[leftmargin=0.7cm]
+    \item Automatically run unit tests on the scoring logic (EAR/MAR computation, thresholding, smoothing) on every change.
+    \item Run pipeline tests against a fixed set of labeled sample videos to catch regressions in detection behavior.
+    \item Produce repeatable deployment artifacts for the desktop/mobile client and backend to staging.
+\end{itemize}
+
+\section{Evaluation Criterion}
+We define success using measurable metrics tied to
+detection accuracy and real-time responsiveness.
+
+\subsection{Primary evaluation metric}
+\textbf{Alert latency:} time between the onset of a
+drowsiness event (e.g., sustained eye closure) in the
+input video and the system raising an alert.
+\begin{itemize}[leftmargin=0.7cm]
+    \item Target: median alert latency $\le$ 1 second on labeled test clips.
+    \item Attribution: measured by comparing ground-truth event onset timestamps (from labeled/annotated test videos) against logged alert timestamps.
+\end{itemize}
+
+\subsection{Secondary evaluation metrics}
+\begin{itemize}[leftmargin=0.7cm]
+    \item \textbf{Detection accuracy:} sensitivity (recall) and specificity of drowsiness classification against a labeled validation set (e.g., a subset of an existing public drowsiness dataset or self-recorded, consented clips).
+    \item \textbf{False alarm rate:} number of false-positive alerts per hour of normal (alert) driving footage.
+    \item \textbf{Real-time performance:} sustained frames-per-second on target hardware, and CPU/memory usage.
+    \item \textbf{User-perceived reliability:} a simple 1--5 feedback question on alert timeliness and annoyance level from pilot users.
+\end{itemize}
+
+\subsection{Pilot validation plan}
+\begin{itemize}[leftmargin=0.7cm]
+    \item Collect or use an existing small set of labeled driving/alertness video clips (with consent, or a public dataset) covering both alert and simulated-drowsy states.
+    \item Run 5--10 pilot users through short supervised sessions (e.g., a driving simulator or seated webcam test) to measure real-world alert latency and false-alarm rate.
+\end{itemize}
+
+\section{Timeline}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|c|p{6cm}|p{5cm}|}
+\hline
+\textbf{Weeks} & \textbf{Task} & \textbf{Deliverable} \\
+\hline
+
+1--2 &
+Literature review, requirement analysis, and project setup &
+Requirements specification and technology stack \\
+\hline
+
+3--4 &
+Camera capture and facial landmark detection &
+Working face and landmark detection module \\
+\hline
+
+5--6 &
+EAR-based eye-closure detection and threshold calibration &
+Eye-closure detection prototype \\
+\hline
+
+7--8 &
+MAR-based yawning detection and combined drowsiness scoring &
+Drowsiness scoring module \\
+\hline
+
+9--10 &
+Alert mechanism and event logging integration &
+Working end-to-end detection and alert system \\
+\hline
+
+11 &
+Testing, CI/CD integration, and performance evaluation &
+Test results and performance report \\
+\hline
+
+12 &
+Buffer week, refinement, documentation, and final testing &
+Final prototype and project documentation \\
+\hline
+
+\end{tabular}
+\end{center}
+
+\section{Scalability}
+The proposition should scale in both theoretical and
+practical senses.
+
+\begin{enumerate}[leftmargin=0.7cm]
+    \item \textbf{Scalable (theoretically):} The system should support growth from single-driver monitoring to fleet-level analytics by:
+    \begin{itemize}[leftmargin=0.7cm]
+        \item keeping heavy processing on the edge device so backend load only scales with event metadata, not video volume,
+        \item using stateless, indexed APIs for querying historical events across many drivers/vehicles,
+        \item allowing per-user calibration profiles to be stored and retrieved independently.
+    \end{itemize}
+
+    \item \textbf{Operationally deployable (practically):} The system should run on common hardware and hosting:
+    \begin{itemize}[leftmargin=0.7cm]
+        \item lightweight client for laptops, Raspberry Pi-class devices, or smartphones,
+        \item managed database and containerized backend for the optional logging service,
+        \item CI/CD pipeline for staging/production releases of both client and backend.
+    \end{itemize}
+\end{enumerate}
+
+\section{Technology Stack}
+A mature set of ``engines'' (tooling/libraries) is
+available to implement this without inventing new
+computer-vision research:
+\begin{itemize}[leftmargin=0.7cm]
+    \item Computer-vision library for frame capture and preprocessing (OpenCV).
+    \item Pre-trained facial landmark detector (dlib 68-point model or MediaPipe Face Mesh).
+    \item Audio/notification library for triggering alerts on the client device.
+    \item Lightweight web/mobile framework for the client UI and optional dashboard.
+    \item Managed relational or document database for event logging.
+    \item Test framework for unit/integration tests on scoring logic.
+    \item CI runner and staging deployment target.
+\end{itemize}
+We will use these mature components to focus on
+pipeline integration, calibration, correctness, and
+measurement rather than building detection models from
+scratch.
+
+\section{Project scope and deliverables}
+\subsection{Initial deliverable}
+\begin{itemize}[leftmargin=0.7cm]
+    \item Webcam capture + facial landmark detection integration
+    \item EAR-based eye-closure detection with basic thresholding and temporal smoothing
+    \item Local audio/visual alert on sustained eye closure
+    \item Basic event logging with timestamps for latency measurement
+    \item CI: build + unit tests for scoring logic + linting
+    \item CD to staging for the client application
+\end{itemize}
+
+\subsection{Subsequent deliverables}
+\begin{itemize}[leftmargin=0.7cm]
+    \item MAR-based yawning detection and combined drowsiness scoring
+    \item Per-user calibration flow to reduce false alarms
+    \item Optional backend for event logging and a simple analytics dashboard
+    \item Low-light/IR-camera considerations for night-time driving scenarios
+\end{itemize}
+
+\section{Risks and mitigations}
+\begin{itemize}[leftmargin=0.7cm]
+    \item \textbf{Privacy of video data:} process video entirely on-device where possible; never store or transmit raw frames by default, only derived event metadata.
+    \item \textbf{False positives/negatives:} mitigate via per-user calibration, temporal smoothing, and clearly logging low-confidence events instead of silently discarding or over-alerting.
+    \item \textbf{Hardware/lighting variability:} test across multiple lighting conditions and camera qualities early; document known limitations (e.g., sunglasses, extreme low light).
+    \item \textbf{Driver distraction from alerts:} keep alert design (sound/vibration pattern) simple and non-startling, validated informally with pilot users.
+    \item \textbf{Operational issues in pilot:} use staging and recorded test videos early; ensure CI/CD produces repeatable, testable builds before live testing.
+\end{itemize}
+
+\section{Summary}
+This project proposes a deployable, camera-based
+drowsiness prediction and alerting system to reduce
+fatigue-related driving risk. It meets the course
+criteria by emphasizing time-to-value through rapid
+iterations built on pre-trained, mature computer-vision
+components, implementing CI/CD to support frequent safe
+releases, and using measurable evaluation criteria
+(especially alert latency and detection accuracy). It
+remains focused on engineering integration, real-time
+reliability, and scalability readiness rather than
+novel algorithmic research.
+
+\end{document}
