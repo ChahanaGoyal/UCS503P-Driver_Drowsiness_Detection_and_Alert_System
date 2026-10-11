@@ -72,6 +72,3 @@ The system is designed to use consecutive frames rather than relying on a single
 
 - Improve eye-closure and yawning detection reliability.
 - Test the application under different lighting conditions and camera positions.
-## Disclaimer
-
-This application is developed for educational and experimental purposes. Its detection results may be inaccurate, and it should not be relied upon as the sole method of determining driver alertness.
