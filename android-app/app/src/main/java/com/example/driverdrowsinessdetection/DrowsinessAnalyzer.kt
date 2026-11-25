@@ -7,7 +7,10 @@ data class DrowsinessResult(
     val ear: Float,
     val mar: Float,
     val status: String,
-    val alarmRequired: Boolean
+    val alarmRequired: Boolean,
+    val eyeClosedMs: Long,
+    val drowsy: Boolean,
+    val yawning: Boolean
 )
 
 class DrowsinessAnalyzer {
@@ -111,7 +114,10 @@ class DrowsinessAnalyzer {
             ear = ear,
             mar = mar,
             status = status,
-            alarmRequired = alarmRequired
+            alarmRequired = alarmRequired,
+            eyeClosedMs = eyesClosedSince?.let { currentTime - it } ?: 0L,
+            drowsy = eyesClosedTooLong,
+            yawning = mouthOpenTooLong
         )
     }
 
